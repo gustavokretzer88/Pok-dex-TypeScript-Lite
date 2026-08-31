@@ -1,0 +1,28 @@
+{
+  "name": "pok-dex-typescript-lite",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [],
+  "homepage": "https://github.com/gustavokretzer88/Pok-dex-TypeScript-Lite#readme",
+  "bugs": {
+    "url": "https://github.com/gustavokretzer88/Pok-dex-TypeScript-Lite/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gustavokretzer88/Pok-dex-TypeScript-Lite.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+  "dev": "tsx src/main.ts",
+  "build": "tsc",
+  "start": "npm run build && node dist/main.js"
+},
+  "devDependencies": {
+    "@types/node": "^26.4.0",
+    "tsx": "^4.23.12",
+    "typescript": "^7.0.2"
+  }
+}
