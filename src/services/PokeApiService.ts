@@ -10,7 +10,7 @@ export class PokeApiService {
     async buscarPokemon(
         nomeOuId: string
     ): Promise<PokemonResumo> {
-        var urlPokeAPI = "https://pokeapi.co/api/v2/pokemon/" + nomeOuId;
+        const urlPokeAPI = "https://pokeapi.co/api/v2/pokemon/" + nomeOuId;
         try {
             const resposta = await fetch(urlPokeAPI);
             if(!resposta.ok) {
