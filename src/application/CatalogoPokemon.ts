@@ -5,25 +5,23 @@ import { PokeApiService } from "../services/PokeApiService";
 
 export class CatalogoDePokemon {
 
-
     private catalogo: PokemonResumo[] = [];
 
-    CatalogoDePokemon() {
+    constructor(catalogoInicial: PokemonResumo[]) {
+        this.catalogo = catalogoInicial;
     }
 
-    pokemonCatalogado(nome: string) : boolean {
-        return this.catalogo.find((element) => element.nome === nome) !== undefined;
+    pokemonCatalogado(nomeOuId: any) : boolean {
+        return this.catalogo.find((element) => (element.nome === nomeOuId) || element.id === nomeOuId) !== undefined
     }
 
-    pokemonCatalogadoId(id: number) {
-        return this.catalogo.find((element) => element.id === id) !== undefined;
+    getCatalogo() : PokemonResumo[] {
+        return this.catalogo;
     }
-
-
 
     async  adicionaPokemonCatalogo(nomePokemon: string) : Promise<PokemonResumo | null> {
         if(this.pokemonCatalogado(nomePokemon)) {
-            console.log("[AVISO] ${nomePokemon} já está no catálogo.");
+            console.log(`[AVISO] ${nomePokemon} já está no catálogo.`);
             return null; // já está no catalogo
         }
         try {
@@ -41,14 +39,16 @@ export class CatalogoDePokemon {
     }
 
     async obtemPokemon(nomePokemon: string) : Promise<PokemonResumo | null> {
-        var pokemon = this.catalogo.find((element) => element.nome === nomePokemon)
+        const id = Number(nomePokemon.trim());
+        var pokemon = Number.isNaN(id) 
+            ? this.catalogo.find((element) => element.nome === nomePokemon)
+            : this.catalogo.find((element) => element.id === id);
         if(pokemon !== undefined) {
-            console.log("[OK] Obtido pokemon ${nomePokemon} da cache.");
+            console.log(`[OK] Obtido pokemon ${nomePokemon} da cache.`);
             return pokemon;
         }
         console.log(`[INFO] Pokemon ${nomePokemon} não disponível em cache`);
         return this.adicionaPokemonCatalogo(nomePokemon);
-
     }
 
     listarPokemons() {
@@ -58,18 +58,11 @@ export class CatalogoDePokemon {
         })
     }
 
-     removePokemonPorId(id: number) {
-        const indexPoke = this.catalogo.findIndex((poke) => poke.id === id);
-        if(indexPoke === -1) {
-            console.log(`[ERRO] Pokemon #${id} não encontrado`)
-            return;
-        }
-        this.catalogo.splice(indexPoke, 1);
-        console.log(`[OK] Pokemon #${id} removido do catalogo`);
-    }
-
     removePokemon(nome: string) {
-        const indexPoke = this.catalogo.findIndex((poke) => poke.nome === nome);
+        const id = Number(nome.trim());
+        const indexPoke = Number.isNaN(id) 
+        ? this.catalogo.findIndex((poke) => poke.nome === nome)
+        : this.catalogo.findIndex((poke) => poke.id === id)
         if(indexPoke === -1) {
             console.log(`[ERRO] Pokemon ${nome} não encontrado`)
             return;
