@@ -15,23 +15,73 @@ function imprimeInfoPokemon(pokemon: PokemonResumo) {
 }
 
 export class TerminalController {
-
   private catalogo: CatalogoDePokemon;
 
   constructor(catalogo: CatalogoDePokemon) {
     this.catalogo = catalogo;
   }
 
-  static mostrarBoasVindas(): void {
-    const caminhoArte = join(process.cwd(), "assets", "asciiart_charizard.txt");
-    console.log(caminhoArte);
+static imprimeAsciiArt(arquivoArte: string) {
+    const caminhoArte = join(process.cwd(), "assets", arquivoArte);
     const asciiart = readFileSync(caminhoArte, "utf-8");
+    console.log(asciiart);
+}
 
+  static mostrarBoasVindas(): void {
     console.clear();
     console.log("╔══════════════════════════════════════════════════╗");
     console.log("║               BEM-VINDO À POKÉDEX                ║");
     console.log("╚══════════════════════════════════════════════════╝");
-    console.log(asciiart);
+    TerminalController.imprimeAsciiArt("asciiart_charizard.txt");
+  }
+
+  static agradecimentoSaida(): void {
+    TerminalController.imprimeAsciiArt("asciiart_pikachu.txt");
+    console.log("Obrigado por usar o PokeDex! Até mais!");
+  }
+
+  comandoListar() {
+    this.catalogo.listarPokemons();
+  }
+
+  async comandoBuscar(nomeOuId: string | undefined) {
+    if (!nomeOuId) {
+      console.log("Informe o nome ou id do Pokémon.");
+      return;
+    }
+    try {
+      const id = Number(nomeOuId.trim());
+      var pokemonPromisse = await this.catalogo.obtemPokemon(nomeOuId); 
+      if (pokemonPromisse != null) imprimeInfoPokemon(pokemonPromisse);
+    } catch (err) {
+      console.log(`Erro ao obter pokemon: ${err}`);
+    }
+  }
+
+  async comandoRemover(nomeOuId: string | undefined) {
+    if (!nomeOuId) {
+      console.log("Informe o nome ou id do Pokémon.");
+      return;
+    }
+    this.catalogo.removePokemon(nomeOuId);
+  }
+
+  async comandoPreencherValores() {
+    await this.catalogo.preencheCatalogo();
+  }
+
+  comandoAjuda() {
+    console.log(
+      "Manual de uso da PokeDex:\n\
+Comando:             | Descrição:                                                | Exemplo de uso:\n\
+--------------------------------------------------------------------------------------------------\n\
+listar               | Lista os Pokémon armazenados na cache local.              | listar\n\
+buscar <nome ou ID>  | Consulta um Pokémon; usa a cache quando disponível.       | buscar pikachu\n\
+remover<nome ou ID>  | Remove um Pokémon da cache local pelo nome ou ID.         | remover pikachu\n\
+preencher            | Busca lista de Pokémons pré-definidos.                    | preencher\n\
+ajuda                | Exibe instruções de uso da PokeDex                        | ajuda\n\
+sair                 | Encerra a PokeDex persistindo em disco Pokémons em cache. | sair",
+    );
   }
 
   async iniciarMenu(): Promise<void> {
@@ -40,66 +90,35 @@ export class TerminalController {
     let executando = true;
     do {
       const comando = await terminal.question(
-        "\nComando [listar | buscar <nome> | remover <nome> | removerid <id> | preencher | sair]: \n> ",
+        "\nComando [listar | buscar <nome ou id> | remover <nome ou id> | preencher | sair | ajuda]: \n> ",
       );
-      console.log("\n");
 
       const [acao, valor] = comando.trim().toLowerCase().split(" ");
 
       switch (acao) {
         case "listar":
-          this.catalogo.listarPokemons();
+          this.comandoListar();
           break;
-
         case "buscar":
-          if (!valor) {
-            console.log("Informe o nome do Pokémon.");
-            break;
-          }
-          try {
-            var pokemonPromisse = await this.catalogo.obtemPokemon(valor);
-            if (pokemonPromisse != null) imprimeInfoPokemon(pokemonPromisse);
-          } catch (err) {
-            console.log("Erro ao obter pokemon: " + err);
-          }
-          break;
-
-        case "buscarid":
-          // TODO: IMPLEMENTAR....
-          console.log("[ERRO] Função não implementada");
+          await this.comandoBuscar(valor);
           break;
         case "remover":
-          if (!valor) {
-            console.log("Informe o nome do Pokémon.");
-            break;
-          }
-          this.catalogo.removePokemon(valor);
+          await this.comandoRemover(valor);
           break;
-        case "removerid":
-          if (!valor) {
-            console.log("Informe o nome do Pokémon.");
-            break;
-          }
-          const id = Number(valor.trim());
-          if (Number.isNaN(id)) {
-            console.log("Digite um número válido.");
-          }
-          this.catalogo.removePokemonPorId(id);
-          break;
-
         case "preencher":
-          await this.catalogo.preencheCatalogo();
+          await this.comandoPreencherValores();
           break;
         case "sair":
+          TerminalController.agradecimentoSaida();
           executando = false;
-          console.log("Obrigado por usar o PokeDex!\nAté mais!");
           break;
-
+        case "ajuda":
+          this.comandoAjuda();
+          break;
         default:
           console.log("Comando inválido.");
       }
 
-      console.log("\n");
     } while (executando);
 
     terminal.close();
