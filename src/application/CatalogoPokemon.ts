@@ -5,10 +5,10 @@ import { PokeApiService } from "../services/PokeApiService";
 
 export class CatalogoDePokemon {
 
-
     private catalogo: PokemonResumo[] = [];
 
-    CatalogoDePokemon() {
+    constructor(catalogoInicial: PokemonResumo[]) {
+        this.catalogo = catalogoInicial;
     }
 
     pokemonCatalogado(nome: string) : boolean {
@@ -19,7 +19,9 @@ export class CatalogoDePokemon {
         return this.catalogo.find((element) => element.id === id) !== undefined;
     }
 
-
+    getCatalogo() : PokemonResumo[] {
+        return this.catalogo;
+    }
 
     async  adicionaPokemonCatalogo(nomePokemon: string) : Promise<PokemonResumo | null> {
         if(this.pokemonCatalogado(nomePokemon)) {
@@ -43,7 +45,7 @@ export class CatalogoDePokemon {
     async obtemPokemon(nomePokemon: string) : Promise<PokemonResumo | null> {
         var pokemon = this.catalogo.find((element) => element.nome === nomePokemon)
         if(pokemon !== undefined) {
-            console.log("[OK] Obtido pokemon ${nomePokemon} da cache.");
+            console.log(`[OK] Obtido pokemon ${nomePokemon} da cache.`);
             return pokemon;
         }
         console.log(`[INFO] Pokemon ${nomePokemon} não disponível em cache`);

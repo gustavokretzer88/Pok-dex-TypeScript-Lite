@@ -15,9 +15,14 @@ function imprimeInfoPokemon(pokemon: PokemonResumo) {
 }
 
 export class TerminalController {
-  TerminalController() {}
 
-  mostrarBoasVindas(): void {
+  private catalogo: CatalogoDePokemon;
+
+  constructor(catalogo: CatalogoDePokemon) {
+    this.catalogo = catalogo;
+  }
+
+  static mostrarBoasVindas(): void {
     const caminhoArte = join(process.cwd(), "assets", "asciiart_charizard.txt");
     console.log(caminhoArte);
     const asciiart = readFileSync(caminhoArte, "utf-8");
@@ -31,7 +36,6 @@ export class TerminalController {
 
   async iniciarMenu(): Promise<void> {
     const terminal = readline.createInterface({ input, output });
-    var catalogo: CatalogoDePokemon = new CatalogoDePokemon();
 
     let executando = true;
     do {
@@ -44,7 +48,7 @@ export class TerminalController {
 
       switch (acao) {
         case "listar":
-          catalogo.listarPokemons();
+          this.catalogo.listarPokemons();
           break;
 
         case "buscar":
@@ -53,7 +57,7 @@ export class TerminalController {
             break;
           }
           try {
-            var pokemonPromisse = await catalogo.obtemPokemon(valor);
+            var pokemonPromisse = await this.catalogo.obtemPokemon(valor);
             if (pokemonPromisse != null) imprimeInfoPokemon(pokemonPromisse);
           } catch (err) {
             console.log("Erro ao obter pokemon: " + err);
@@ -69,7 +73,7 @@ export class TerminalController {
             console.log("Informe o nome do Pokémon.");
             break;
           }
-          catalogo.removePokemon(valor);
+          this.catalogo.removePokemon(valor);
           break;
         case "removerid":
           if (!valor) {
@@ -80,11 +84,11 @@ export class TerminalController {
           if (Number.isNaN(id)) {
             console.log("Digite um número válido.");
           }
-          catalogo.removePokemonPorId(id);
+          this.catalogo.removePokemonPorId(id);
           break;
 
         case "preencher":
-          await catalogo.preencheCatalogo();
+          await this.catalogo.preencheCatalogo();
           break;
         case "sair":
           executando = false;
